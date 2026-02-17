@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model asignacion_proyecto_empleado {
+  id                    Int                     @id @default(autoincrement())
+  codigo                String                  @unique @db.VarChar(50)
+  proyecto_id           Int
+  empleado_id           Int
+  rol_proyecto_id       Int
+  fecha_inicio          DateTime                @db.Date
+  fecha_final           DateTime?               @db.Date
+  activo                Boolean?                @default(true)
+  porcentaje_asignacion Decimal?                @db.Decimal(5, 2)
+  empleado              empleado                @relation(fields: [empleado_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignacion_empleado")
+  proyecto              proyecto                @relation(fields: [proyecto_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignacion_proyecto")
+  rol_proyecto          rol_proyecto            @relation(fields: [rol_proyecto_id], references: [id], onUpdate: NoAction, map: "fk_asignacion_rol_proyecto")
+  horas_semana_empleado horas_semana_empleado[]
+
+  @@index([activo], map: "idx_asignacion_activo")
+  @@index([empleado_id], map: "idx_asignacion_empleado")
+  @@index([fecha_inicio, fecha_final], map: "idx_asignacion_fechas")
+  @@index([proyecto_id], map: "idx_asignacion_proyecto")
+}
+
+model dimension {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique @db.VarChar(20)
+  descripcion String     @db.VarChar(200)
+  activo      Boolean?   @default(true)
+  empleado    empleado[]
+}
+
+model empleado {
+  id                           Int                            @id @default(autoincrement())
+  codigo_empleado              String                         @unique @db.VarChar(50)
+  nombre                       String                         @db.VarChar(100)
+  apellido                     String                         @db.VarChar(100)
+  perfil_id                    Int
+  dimension_id                 Int
+  modelo_contratacion_id       Int
+  pais_id                      Int
+  fecha_alta                   DateTime                       @db.Date
+  fecha_baja                   DateTime?                      @db.Date
+  razon_baja                   String?                        @db.VarChar(500)
+  activo                       Boolean?                       @default(true)
+  sba                          Decimal?                       @db.Decimal(12, 2)
+  coste_empresa                Decimal?                       @db.Decimal(12, 2)
+  coste_hora                   Decimal?                       @db.Decimal(10, 2)
+  email                        String?                        @db.VarChar(100)
+  telefono                     String?                        @db.VarChar(20)
+  cv_url                       String?                        @db.VarChar(500)
+  username                     String?                        @unique @db.VarChar(50)
+  password_hash                String?                        @db.VarChar(255)
+  fecha_ultimo_acceso          DateTime?
+  asignacion_proyecto_empleado asignacion_proyecto_empleado[]
+  dimension                    dimension                      @relation(fields: [dimension_id], references: [id], onUpdate: NoAction, map: "fk_empleado_dimension")
+  modelo_contratacion          modelo_contratacion            @relation(fields: [modelo_contratacion_id], references: [id], onUpdate: NoAction, map: "fk_empleado_modelo_contratacion")
+  pais                         pais                           @relation(fields: [pais_id], references: [id], onUpdate: NoAction, map: "fk_empleado_pais")
+  perfil                       perfil                         @relation(fields: [perfil_id], references: [id], onUpdate: NoAction, map: "fk_empleado_perfil")
+  empleado_rol                 empleado_rol[]
+  proyecto                     proyecto[]
+  sesion                       sesion[]
+
+  @@index([activo], map: "idx_empleado_activo")
+  @@index([email], map: "idx_empleado_email")
+  @@index([email], map: "idx_empleado_email_login")
+  @@index([pais_id], map: "idx_empleado_pais")
+  @@index([perfil_id], map: "idx_empleado_perfil")
+  @@index([username], map: "idx_empleado_username")
+}
+
+model empleado_rol {
+  id               Int      @id @default(autoincrement())
+  empleado_id      Int
+  rol_id           Int
+  fecha_asignacion DateTime @default(now())
+  empleado         empleado @relation(fields: [empleado_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_empleado_rol_empleado")
+  rol              rol      @relation(fields: [rol_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_empleado_rol_rol")
+
+  @@unique([empleado_id, rol_id], map: "uq_empleado_rol")
+}
+
+model gastos_proyecto {
+  id          Int      @id @default(autoincrement())
+  proyecto_id Int
+  descripcion String?  @db.VarChar(500)
+  importe     Decimal  @db.Decimal(12, 2)
+  fecha_gasto DateTime @db.Date
+  proyecto    proyecto @relation(fields: [proyecto_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_gastos_proyecto")
+
+  @@index([proyecto_id], map: "idx_gastos_proyecto")
+}
+
+model horas_semana_empleado {
+  id                           Int                          @id @default(autoincrement())
+  asignacion_proyecto_id       Int
+  year                         Int
+  semana_numero                Int
+  fecha_inicio_semana          DateTime                     @db.Date
+  fecha_fin_semana             DateTime                     @db.Date
+  horas_trabajadas             Decimal                      @default(0) @db.Decimal(6, 2)
+  observaciones                String?                      @db.VarChar(500)
+  asignacion_proyecto_empleado asignacion_proyecto_empleado @relation(fields: [asignacion_proyecto_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_horas_asignacion")
+
+  @@unique([asignacion_proyecto_id, year, semana_numero], map: "uq_horas_asignacion_semana")
+  @@index([asignacion_proyecto_id], map: "idx_horas_asignacion")
+  @@index([year, semana_numero], map: "idx_horas_year_semana")
+}
+
+model ingresos_proyecto {
+  id            Int      @id @default(autoincrement())
+  proyecto_id   Int
+  descripcion   String?  @db.VarChar(500)
+  importe       Decimal  @db.Decimal(12, 2)
+  fecha_ingreso DateTime @db.Date
+  proyecto      proyecto @relation(fields: [proyecto_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ingresos_proyecto")
+
+  @@index([proyecto_id], map: "idx_ingresos_proyecto")
+}
+
+model modelo_contratacion {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique @db.VarChar(20)
+  descripcion String     @db.VarChar(200)
+  activo      Boolean?   @default(true)
+  empleado    empleado[]
+}
+
+model modelo_proyecto {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique @db.VarChar(20)
+  descripcion String     @db.VarChar(200)
+  activo      Boolean?   @default(true)
+  proyecto    proyecto[]
+}
+
+model pais {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique @db.VarChar(10)
+  descripcion String     @db.VarChar(100)
+  activo      Boolean?   @default(true)
+  empleado    empleado[]
+  proyecto    proyecto[]
+}
+
+model perfil {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique @db.VarChar(20)
+  descripcion String     @db.VarChar(200)
+  activo      Boolean?   @default(true)
+  empleado    empleado[]
+}
+
+model proyecto {
+  id                           Int                            @id @default(autoincrement())
+  codigo                       Int                            @unique
+  nombre                       String                         @db.VarChar(200)
+  cliente                      String?                        @db.VarChar(200)
+  modelo_proyecto_id           Int
+  descripcion                  String?
+  tarifa                       Decimal?                       @db.Decimal(12, 2)
+  fecha_inicio                 DateTime                       @db.Date
+  fecha_final_prevista         DateTime?                      @db.Date
+  fecha_final                  DateTime?                      @db.Date
+  pais_id                      Int
+  ciudad                       String?                        @db.VarChar(100)
+  responsable_id               Int
+  asignacion_proyecto_empleado asignacion_proyecto_empleado[]
+  gastos_proyecto              gastos_proyecto[]
+  ingresos_proyecto            ingresos_proyecto[]
+  modelo_proyecto              modelo_proyecto                @relation(fields: [modelo_proyecto_id], references: [id], onUpdate: NoAction, map: "fk_proyecto_modelo_proyecto")
+  pais                         pais                           @relation(fields: [pais_id], references: [id], onUpdate: NoAction, map: "fk_proyecto_pais")
+  empleado                     empleado                       @relation(fields: [responsable_id], references: [id], onUpdate: NoAction, map: "fk_proyecto_responsable")
+
+  @@index([fecha_inicio, fecha_final], map: "idx_proyecto_fechas")
+  @@index([pais_id], map: "idx_proyecto_pais")
+  @@index([responsable_id], map: "idx_proyecto_responsable")
+}
+
+model rol {
+  id           Int            @id @default(autoincrement())
+  codigo       String         @unique @db.VarChar(20)
+  nombre       String         @db.VarChar(50)
+  descripcion  String?        @db.VarChar(200)
+  activo       Boolean?       @default(true)
+  empleado_rol empleado_rol[]
+}
+
+model rol_proyecto {
+  id                           Int                            @id @default(autoincrement())
+  codigo                       String                         @unique @db.VarChar(20)
+  descripcion                  String                         @db.VarChar(200)
+  activo                       Boolean?                       @default(true)
+  asignacion_proyecto_empleado asignacion_proyecto_empleado[]
+}
+
+model sesion {
+  id               Int      @id @default(autoincrement())
+  empleado_id      Int
+  token            String   @unique @db.VarChar(500)
+  ip_address       String?  @db.VarChar(45)
+  user_agent       String?
+  fecha_creacion   DateTime @default(now())
+  fecha_expiracion DateTime
+  activa           Boolean? @default(true)
+  empleado         empleado @relation(fields: [empleado_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_sesion_empleado")
+
+  @@index([activa, fecha_expiracion], map: "idx_sesion_activa")
+  @@index([empleado_id], map: "idx_sesion_empleado")
+  @@index([token], map: "idx_sesion_token")
+}

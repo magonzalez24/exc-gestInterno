@@ -1,0 +1,16 @@
+export { paisService } from './pais.service';
+export { dimensionService } from './dimension.service';
+export { perfilService } from './perfil.service';
+export { modeloContratacionService } from './modeloContratacion.service';
+export { modeloProyectoService } from './modeloProyecto.service';
+export { rolService } from './rol.service';
+export { rolProyectoService } from './rolProyecto.service';
+export { empleadoService } from './empleado.service';
+export { proyectoService } from './proyecto.service';
+export { asignacionProyectoEmpleadoService } from './asignacionProyectoEmpleado.service';
+export { empleadoRolService } from './empleadoRol.service';
+export { gastosProyectoService } from './gastosProyecto.service';
+export { ingresosProyectoService } from './ingresosProyecto.service';
+export { horasSemanaEmpleadoService } from './horasSemanaEmpleado.service';
+export { sesionService } from './sesion.service';
+export { authService } from './auth.service';
