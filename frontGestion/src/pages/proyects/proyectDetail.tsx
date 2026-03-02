@@ -212,6 +212,9 @@ const ProyectDetail = () => {
           asignaciones={asignaciones}
           toggleEmpleadoSeleccion={toggleEmpleadoSeleccion}
           handleCambioAsignacion={handleCambioAsignacion}
+          onConfirm={() => {
+            console.log("onConfirm")
+          }}
         />
       </div>
     </>

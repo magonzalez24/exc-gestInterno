@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardTitle, CardHeader, CardContent, CardDescription } from "../ui/card"
 import { getProyectos, Proyecto } from "@/services/proyectosService";
+import { LoadingScreen } from "@/components/loadingScreen";
 
  const CardProyects = () => {
     const [proyectos, setProyectos] = useState<Proyecto[]>([]);
@@ -27,6 +28,13 @@ import { getProyectos, Proyecto } from "@/services/proyectosService";
     void loadProyectos();
   }, []);
 
+  if (loading) {
+    return <LoadingScreen />
+  }
+
+  if (error) {
+    return <div className="text-red-500">Error al cargar los proyectos: {error}</div>
+  }
 
     return (
     <Card className="overflow-hidden rounded-xl border-0 bg-white shadow-md">
