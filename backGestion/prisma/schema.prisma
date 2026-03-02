@@ -17,15 +17,31 @@ model asignacion_proyecto_empleado {
   fecha_final           DateTime?               @db.Date
   activo                Boolean?                @default(true)
   porcentaje_asignacion Decimal?                @db.Decimal(5, 2)
+  costo_asignacion      Decimal?                @db.Decimal(12, 2)
   empleado              empleado                @relation(fields: [empleado_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignacion_empleado")
   proyecto              proyecto                @relation(fields: [proyecto_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignacion_proyecto")
   rol_proyecto          rol_proyecto            @relation(fields: [rol_proyecto_id], references: [id], onUpdate: NoAction, map: "fk_asignacion_rol_proyecto")
   horas_semana_empleado horas_semana_empleado[]
+  logs                  asignacion_proyecto_empleado_log[]
 
   @@index([activo], map: "idx_asignacion_activo")
   @@index([empleado_id], map: "idx_asignacion_empleado")
   @@index([fecha_inicio, fecha_final], map: "idx_asignacion_fechas")
   @@index([proyecto_id], map: "idx_asignacion_proyecto")
+}
+
+model asignacion_proyecto_empleado_log {
+  id                        Int                           @id @default(autoincrement())
+  asignacion_id             Int
+  fecha_inicio              DateTime                      @db.Date
+  fecha_final               DateTime?                     @db.Date
+  porcentaje_asignacion     Decimal                       @db.Decimal(5, 2)
+  costo_asignacion_periodo  Decimal                       @db.Decimal(12, 2)
+  costo_hora_utilizado      Decimal                       @db.Decimal(10, 2)
+  creado_en                 DateTime                      @default(now())
+  asignacion_proyecto       asignacion_proyecto_empleado  @relation(fields: [asignacion_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignacion_log_asignacion")
+
+  @@index([asignacion_id], map: "idx_asignacion_log_asignacion")
 }
 
 model dimension {

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ProjectTeamCard, TeamMemberAssignment } from "@/components/proyectsDetails/ProjectTeamCard"
 import { PageBreadcrumb } from "@/components/PageBreadcrumb"
 import { CustomInput } from "@/components/CustomInput"
 import CustomSelect, { CatalogOption } from "@/components/CustomSelect"
@@ -197,9 +198,6 @@ const ProyectForm = () => {
     })
   }
 
-  const aplicarConfiguracionMasiva = () => {
-    // Configuración masiva deshabilitada (diseño actual sin botón Bulk Edit)
-  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -221,18 +219,21 @@ const ProyectForm = () => {
           const empleadoId = asignacion.empleado.id
           const rolProyectoId = asignacion.rol ? Number(asignacion.rol) : null
 
-          if (!empleadoId || !rolProyectoId) return null
+          if (!empleadoId) return null
 
           return {
             // Código de asignación: combinamos código de proyecto + índice para garantizar unicidad
             codigo: `ASIG-${parsed.codigo}-${index + 1}`,
             fecha_inicio: new Date(asignacion.fecha_inicio).toISOString() || parsed.fecha_inicio,
-            fecha_final: new Date(asignacion.fecha_fin).toISOString() || null,
+            fecha_final: asignacion.fecha_fin
+              ? new Date(asignacion.fecha_fin).toISOString()
+              : null,
             activo: true,
             porcentaje_asignacion: asignacion.porcentaje
               ? Number(asignacion.porcentaje)
               : 100,
             empleado_id: empleadoId,
+            // Permitimos que el rol sea opcional (null) si el usuario no lo ha seleccionado aún
             rol_proyecto_id: rolProyectoId,
           }
         })
@@ -483,94 +484,34 @@ const ProyectForm = () => {
           </Card>
 
           {/* Equipo del proyecto */}
-          <Card className="border-slate-200 bg-white shadow-sm">
-            <CardHeader className="pb-3 flex flex-row items-start justify-between gap-4">
-              <div className="flex-1 space-y-2">
-                <div>
-                  <CardTitle className="text-base font-semibold text-slate-900">
-                    {t("projectForm.sectionTeamTitle") ?? "Equipo del proyecto"}
-                  </CardTitle>
-                  <CardDescription>
-                    {t("projectForm.sectionTeamDescription") ??
-                      "Asigna los empleados que participarán en este proyecto."}
-                  </CardDescription>
-                </div>
+          <ProjectTeamCard
+            t={t}
+            members={empleadosSeleccionadosIds
+              .map((id) => {
+                const asignacion = asignaciones[id]
+                if (!asignacion) return null
 
-                {empleadosSeleccionadosIds.length > 0 && (
-                  <div className="mt-2 overflow-hidden rounded-lg border border-slate-200 bg-slate-50/60">
-                    {/* Cabecera tipo tabla */}
-                    <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)] gap-2 border-b border-slate-200 bg-slate-100/80 px-3 py-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">
-                      <span>{t("projectForm.teamColumnEmployee") ?? "Empleado"}</span>
-                      <div className="flex flex-wrap items-center justify-end gap-4">
-                        <span>{t("projectForm.assignDialogFieldRol") ?? "Rol"}</span>
-                        <span>{t("projectForm.assignDialogFieldStart") ?? "Inicio"}</span>
-                        <span>{t("projectForm.assignDialogFieldEnd") ?? "Fin"}</span>
-                        <span>{t("projectForm.assignDialogFieldPercent") ?? "% dedicación"}</span>
-                      </div>
-                    </div>
+                const { empleado, rol, fecha_inicio, fecha_fin, porcentaje } = asignacion
 
-                    {/* Filas */}
-                    <div className="divide-y divide-slate-200">
-                      {empleadosSeleccionadosIds.map((id) => {
-                        const asignacion = asignaciones[id]
-                        if (!asignacion) return null
+                const member: TeamMemberAssignment = {
+                  id,
+                  nombre: empleado.nombre,
+                  apellido: empleado.apellido,
+                  perfilNombre: empleado.perfil_nombre,
+                  rol,
+                  fecha_inicio,
+                  fecha_fin,
+                  porcentaje,
+                }
 
-                        const { empleado, rol, fecha_inicio, fecha_fin, porcentaje } = asignacion
-
-                        return (
-                          <div
-                            key={id}
-                            className="grid grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)] items-center gap-2 px-3 py-2 text-[11px]"
-                          >
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate font-medium text-slate-900">
-                                {empleado.nombre} {empleado.apellido}
-                              </p>
-                              <p className="truncate text-slate-500">
-                                {empleado.perfil_nombre ?? "-"}
-                              </p>
-                            </div>
-                            <div className="flex flex-wrap items-center justify-end gap-3 text-slate-700">
-                              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700">
-                                {rol
-                                  ? rol
-                                  : (t("projectForm.assignDialogPlaceholderRol") ?? "-")}
-                              </span>
-                              <span>
-                                {fecha_inicio || "-"}
-                              </span>
-                              <span>
-                                {fecha_fin || "-"}
-                              </span>
-                              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                                {porcentaje || "-"}%
-                              </span>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col items-end gap-1 text-right">
-                <p className="text-xs text-slate-500">
-                  {t("projectForm.teamSummary", {
-                    count: empleadosSeleccionadosIds.length,
-                  }) ?? `Empleados seleccionados: ${empleadosSeleccionadosIds.length}`}
-                </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="bg-blue-600 text-white hover:bg-blue-600/90"
-                  onClick={() => setAssignDialogOpen(true)}
-                  disabled={empleados.length === 0}
-                >
-                  {t("projectForm.buttonAssignEmployees") ?? "Asignar empleados"}
-                </Button>
-              </div>
-            </CardHeader>
-          </Card>
+                return member
+              })
+              .filter((m): m is TeamMemberAssignment => m !== null)}
+            summaryCount={empleadosSeleccionadosIds.length}
+            showAssignButton
+            onAssignClick={() => setAssignDialogOpen(true)}
+            assignButtonDisabled={empleados.length === 0}
+          />
 
           <ProjectEmployeesDialog
             open={assignDialogOpen}
@@ -590,7 +531,7 @@ const ProyectForm = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/proyectos")}
+              onClick={() => navigate("/proyects")}
             >
               {t("projectForm.buttonCancel") ?? "Cancelar"}
             </Button>

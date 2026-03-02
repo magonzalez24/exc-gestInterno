@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react"
 
@@ -29,6 +29,8 @@ export const ProyectsTable = () => {
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
   const { showToast } = useAppToast()
   const navigate = useNavigate()
 
@@ -36,27 +38,22 @@ export const ProyectsTable = () => {
     try {
       setLoading(true)
       setError(null)
-      const data = await getProyectos()
-      setProyectos(data)
+      const data = await getProyectos({ page, limit })
+      setProyectos(data.items)
+      setTotal(data.total)
+      setPage(data.page)
+      setTotalPages(data.totalPages)
     } catch (err) {
       console.error("Error al cargar proyectos", err)
       setError("No se pudieron cargar los proyectos.")
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [page, limit])
 
   useEffect(() => {
     void fetchProyectos()
   }, [fetchProyectos])
-
-  const total = proyectos.length
-  const totalPages = Math.max(1, Math.ceil(total / limit))
-
-  useEffect(() => {
-    // Si cambia el total/limit, evita que la página quede fuera de rango.
-    setPage((p) => Math.min(Math.max(1, p), totalPages))
-  }, [totalPages])
 
   const handleAskDeleteProyecto = (proyecto: Proyecto) => {
     setProyectoToDelete(proyecto)
@@ -83,11 +80,6 @@ export const ProyectsTable = () => {
     setDeleteDialogOpen(false)
     setProyectoToDelete(null)
   }
-
-  const proyectosPage = useMemo(() => {
-    const start = (page - 1) * limit
-    return proyectos.slice(start, start + limit)
-  }, [proyectos, page, limit])
 
   const rangeStart = total === 0 ? 0 : (page - 1) * limit + 1
   const rangeEnd = Math.min(page * limit, total)
@@ -131,10 +123,10 @@ export const ProyectsTable = () => {
                       Cliente
                     </TableHead>
                     <TableHead className="px-5 font-semibold text-gray-600">
-                      Ciudad
+                    Responsable
                     </TableHead>
                     <TableHead className="px-5 font-semibold text-gray-600">
-                      Responsable
+                      Ciudad
                     </TableHead>
                     <TableHead className="px-5 font-semibold text-gray-600">
                       Inicio
@@ -151,7 +143,7 @@ export const ProyectsTable = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {proyectosPage.map((proyecto) => (
+                  {proyectos.map((proyecto) => (
                     <TableRow
                       key={proyecto.id}
                       className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50/50"
@@ -186,7 +178,7 @@ export const ProyectsTable = () => {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-gray-500 hover:bg-blue-50 hover:text-primary"
-                            onClick={() => navigate(`/proyectos/${proyecto.id}`)}
+                            onClick={() => navigate(`/proyects/${proyecto.id}`)}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -202,7 +194,7 @@ export const ProyectsTable = () => {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {proyectosPage.length === 0 && (
+                  {proyectos.length === 0 && (
                     <TableRow>
                       <TableCell className="px-5 py-8 text-center text-sm text-muted-foreground" colSpan={9}>
                         No hay proyectos para mostrar.

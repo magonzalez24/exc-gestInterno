@@ -1,6 +1,21 @@
 import { API_ROUTES } from '@/const/api';
 import { axiosInstance } from '@/services/http';
 
+export type Asignacion = {
+  id: number;
+  codigo: string;
+  proyecto_id: number;
+  proyecto_name: string | null;
+  rol_proyecto_id: number;
+  rol_proyecto_name: string | null;
+  fecha_inicio: string;
+  fecha_final: string | null;
+  activo: boolean;
+  porcentaje_asignacion: string;
+  responsable_id: number | null;
+  responsable_name: string;
+};
+
 export type Empleado = {
   id: number;
   codigo_empleado: string;
@@ -22,6 +37,7 @@ export type Empleado = {
   activo: boolean | null;
   sba: number | null;
   cv_url: string | null;
+  asignaciones?: Asignacion[];
 };
 
 export type EmpleadosPageParams = {

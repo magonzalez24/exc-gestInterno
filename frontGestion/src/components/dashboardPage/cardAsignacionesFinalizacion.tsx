@@ -29,7 +29,7 @@ const CardAsignacionesFinalizacion = () => {
     <Card className="overflow-hidden rounded-xl border-0 bg-white shadow-md">
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <div>
-          <CardTitle className="text-base font-semibold">Finalizaciones próximas</CardTitle>
+          <CardTitle className="text-base font-semibold">Asignaciones próximas a finalizar</CardTitle>
           <CardDescription className="text-xs">
             Asignaciones de empleados que finalizan en los próximos meses.
           </CardDescription>

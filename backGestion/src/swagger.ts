@@ -615,6 +615,12 @@ const swaggerDocument = {
           fecha_final: { type: 'string', format: 'date-time' },
           activo: { type: 'boolean' },
           porcentaje_asignacion: { type: 'number', format: 'decimal' },
+          costo_asignacion: {
+            type: 'number',
+            format: 'decimal',
+            description:
+              'Coste total acumulado de la asignación (opcional, normalmente calculado por el backend).',
+          },
         },
       },
       EmpleadoRolInput: {
