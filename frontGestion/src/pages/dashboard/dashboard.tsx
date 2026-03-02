@@ -3,13 +3,6 @@ import { useAuth } from "@/context/useAuth";
 import CardProyects from "@/components/dashboardPage/cardProyects";
 import CardAsignacionesFinalizacion from "@/components/dashboardPage/cardAsignacionesFinalizacion";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 
 export const DashboardPage = () => {
   const { user } = useAuth();
