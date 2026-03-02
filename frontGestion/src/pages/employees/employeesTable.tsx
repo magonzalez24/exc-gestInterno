@@ -164,7 +164,15 @@ export const EmployeesTable = () => {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-gray-500 hover:bg-blue-50 hover:text-primary"
-                            onClick={() => navigate(`/employees/${employee.id}`)}
+                            onClick={() => navigate(`/employees/detail/${employee.id}`)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:bg-blue-50 hover:text-primary"
+                            onClick={() => navigate(`/employees/edit/${employee.id}`)}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>

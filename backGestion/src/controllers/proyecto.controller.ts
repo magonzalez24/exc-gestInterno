@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { proyectoService } from '../services';
+import { proyectoService, asignacionProyectoEmpleadoService } from '../services';
 import { parseId } from '../utils/parseId';
 
 function toProyectoPublic(obj: any) {
@@ -32,6 +32,12 @@ function toProyectoPublic(obj: any) {
 export const proyectoController = {
   async getAll(req: Request, res: Response) {
     try {
+      const pageRaw = req.query.page;
+      const limitRaw = req.query.limit;
+
+      const page = pageRaw !== undefined ? Number(pageRaw) : 1;
+      const limit = limitRaw !== undefined ? Number(limitRaw) : 10;
+
       const includeBase = {
         empleado: { select: { id: true, nombre: true, apellido: true } },
       } as const;
@@ -40,8 +46,15 @@ export const proyectoController = {
           ? { ...includeBase, pais: true, modelo_proyecto: true }
           : includeBase;
 
-      const items = await proyectoService.findAll(undefined, include);
-      res.json(items.map(toProyectoPublic));
+      const result = await proyectoService.findAllPaginated(undefined, include, page, limit);
+
+      res.json({
+        items: result.items.map(toProyectoPublic),
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      });
     } catch (error) {
       console.error('Error en proyectoController.getAll:', error);
       res.status(500).json({ error: 'Error al obtener proyectos' });
@@ -66,7 +79,39 @@ export const proyectoController = {
       if (!item) {
         return res.status(404).json({ error: 'Proyecto no encontrado' });
       }
-      res.json(toProyectoPublic(item));
+
+      const asignacionesRaw = await asignacionProyectoEmpleadoService.findByProyecto(id);
+      const asignaciones = asignacionesRaw.map((a: any) => {
+        const empleadoNombre =
+          a.empleado && (a.empleado.nombre || a.empleado.apellido)
+            ? `${a.empleado.nombre ?? ''} ${a.empleado.apellido ?? ''}`.trim()
+            : null;
+
+        const rolProyectoName =
+          (a.rol_proyecto as any)?.nombre ??
+          (a.rol_proyecto as any)?.descripcion ??
+          null;
+
+        return {
+          id: a.id,
+          codigo: a.codigo,
+          empleado_id: a.empleado_id,
+          empleado_name: empleadoNombre,
+          empleado_email: a.empleado?.email ?? null,
+          rol_proyecto_id: a.rol_proyecto_id,
+          rol_proyecto_name: rolProyectoName,
+          fecha_inicio: a.fecha_inicio,
+          fecha_final: a.fecha_final,
+          activo: a.activo,
+          porcentaje_asignacion:
+            a.porcentaje_asignacion != null ? String(a.porcentaje_asignacion) : null,
+        };
+      });
+
+      res.json({
+        ...toProyectoPublic(item),
+        asignaciones,
+      });
     } catch (error) {
       console.error('Error en proyectoController.getById:', error);
       res.status(500).json({ error: 'Error al obtener proyecto' });

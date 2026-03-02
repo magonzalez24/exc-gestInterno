@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Prisma } from '../generated/prisma/client';
-import { empleadoService, authService } from '../services';
+import { empleadoService, authService, asignacionProyectoEmpleadoService } from '../services';
 import { parseId, getParam } from '../utils/parseId';
 
 function toEmpleadoPublic(obj: any) {
@@ -64,7 +64,36 @@ export const empleadoController = {
       if (!item) {
         return res.status(404).json({ error: 'Empleado no encontrado' });
       }
-      res.json(toEmpleadoPublic(item));
+      const asignacionesRaw = await asignacionProyectoEmpleadoService.findByEmpleado(id);
+      const asignaciones = asignacionesRaw.map((a: any) => {
+        const responsable = a.proyecto?.empleado;
+        const responsableNombre =
+          responsable && (responsable.nombre || responsable.apellido)
+            ? `${responsable.nombre ?? ''} ${responsable.apellido ?? ''}`.trim()
+            : '';
+
+        return {
+          id: a.id,
+          codigo: a.codigo,
+          proyecto_id: a.proyecto_id,
+          proyecto_name: a.proyecto?.nombre ?? null,
+          rol_proyecto_id: a.rol_proyecto_id,
+          rol_proyecto_name:
+            (a.rol_proyecto as any)?.nombre ??
+            (a.rol_proyecto as any)?.descripcion ??
+            null,
+          fecha_inicio: a.fecha_inicio,
+          fecha_final: a.fecha_final,
+          activo: a.activo,
+          porcentaje_asignacion: a.porcentaje_asignacion,
+          responsable_id: a.proyecto?.responsable_id ?? null,
+          responsable_name: responsableNombre,
+        };
+      });
+      res.json({
+        ...toEmpleadoPublic(item),
+        asignaciones,
+      });
     } catch (error) {
       console.error('Error en empleadoController.getById:', error);
       res.status(500).json({ error: 'Error al obtener empleado' });

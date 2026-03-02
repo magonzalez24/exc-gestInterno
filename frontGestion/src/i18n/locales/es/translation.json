@@ -133,5 +133,57 @@
   "projectForm.assignDialogConfirm": "Confirmar asignación",
   "sidebar.employees": "Empleados",
   "sidebar.projects": "Proyectos",
-  "sidebar.home": "Inicio"
+  "sidebar.home": "Inicio",
+
+  "employeeDetail.notFound": "Empleado no encontrado",
+  "employeeDetail.present": "Presente",
+  "employeeDetail.statusFinished": "• Finalizado",
+  "employeeDetail.statusCritical": "• Fase Crítica",
+  "employeeDetail.statusEndingSoon": "• Próximo a Finalizar",
+  "employeeDetail.statusInProgress": "• En Progreso",
+  "employeeDetail.noProfile": "Sin perfil",
+  "employeeDetail.noDimension": "Sin dimensión",
+  "employeeDetail.notAvailable": "N/D",
+
+  "employeeDetail.employeeIdLabel": "ID EMPLEADO",
+  "employeeDetail.locationLabel": "UBICACIÓN",
+  "employeeDetail.emailLabel": "EMAIL",
+  "employeeDetail.phoneLabel": "TELÉFONO",
+  "employeeDetail.joinDateLabel": "FECHA DE ALTA",
+
+  "employeeDetail.totalProjectsTitle": "Proyectos totales",
+  "employeeDetail.totalProjectsActive": "+{{count}} activos",
+
+  "employeeDetail.utilizationTitle": "Utilización actual",
+  "employeeDetail.utilizationWithinTarget": "Dentro del objetivo",
+  "employeeDetail.utilizationOverAllocated": "Sobreasignado",
+
+  "employeeDetail.tenureTitle": "Antigüedad",
+  "employeeDetail.tenureYears": "Años",
+
+  "employeeDetail.header.exportPdf": "Exportar PDF",
+  "employeeDetail.header.saveChanges": "Guardar cambios",
+
+  "employeeDetail.assignedProjectsTitle": "Proyectos asignados",
+  "employeeDetail.searchProjectsPlaceholder": "Buscar proyectos...",
+  "employeeDetail.assignProjectButton": "Asignar proyecto",
+
+  "employeeDetail.table.projectName": "NOMBRE PROYECTO",
+  "employeeDetail.table.role": "ROL",
+  "employeeDetail.table.timeline": "PERIODO",
+  "employeeDetail.table.involvement": "DEDICACIÓN",
+  "employeeDetail.table.status": "ESTADO",
+  "employeeDetail.table.actions": "ACCIONES",
+
+  "employeeDetail.noProjects": "No hay proyectos asignados",
+  "employeeDetail.noProjectName": "Sin nombre",
+  "employeeDetail.noRole": "Sin rol",
+  "employeeDetail.daysLeft": "{{count}} días restantes",
+
+  "employeeDetail.warning.overAllocation": "Aviso: la asignación total supera el 100% debido a proyectos solapados.",
+
+  "employeeDetail.pagination.previous": "Anterior",
+  "employeeDetail.pagination.next": "Siguiente",
+
+  "employeeDetail.button.viewProject": "Ver"
 }

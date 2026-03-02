@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardTitle, CardHeader, CardContent } from "../ui/card"
+import { Card, CardTitle, CardHeader, CardContent, CardDescription } from "../ui/card"
 import { getProyectos, Proyecto } from "@/services/proyectosService";
 
  const CardProyects = () => {
@@ -11,7 +11,9 @@ import { getProyectos, Proyecto } from "@/services/proyectosService";
     const loadProyectos = async () => {
       try {
         const data = await getProyectos();
-        const firstFiveProjects = data.slice(0, 5);
+        console.log(data);
+        const firstFiveProjects = data.items.slice(0, 5);
+        console.log(firstFiveProjects);
         setProyectos(firstFiveProjects);
       } catch (err) {
         setError(
@@ -29,13 +31,18 @@ import { getProyectos, Proyecto } from "@/services/proyectosService";
     return (
     <Card className="overflow-hidden rounded-xl border-0 bg-white shadow-md">
         <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle>Proyectos</CardTitle>
+        <div>
+          <CardTitle className="text-base font-semibold">Últimos Proyectos</CardTitle>
+          <CardDescription className="text-xs">
+            Últimos proyectos creados.
+          </CardDescription>
+        </div>
           <h1>{proyectos.length} Total</h1>
         </CardHeader>
         <CardContent>
           <ul>
             {proyectos.map((proyecto) => (
-              <li key={proyecto.id}>{proyecto.nombre}</li>
+              <li className="text-sm text-muted-foreground" key={proyecto.id}>{proyecto.nombre}</li>
             ))}
           </ul>
         </CardContent>

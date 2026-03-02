@@ -131,5 +131,57 @@
   "projectForm.assignDialogFieldPercent": "% involvement",
   "projectForm.assignDialogCancel": "Cancel",
   "projectForm.assignDialogConfirm": "Confirm assignment",
-  "sidebar.projects": "Projects"
+  "sidebar.projects": "Projects",
+
+  "employeeDetail.notFound": "Employee not found",
+  "employeeDetail.present": "Present",
+  "employeeDetail.statusFinished": "• Finished",
+  "employeeDetail.statusCritical": "• Critical phase",
+  "employeeDetail.statusEndingSoon": "• Ending soon",
+  "employeeDetail.statusInProgress": "• In progress",
+  "employeeDetail.noProfile": "No profile",
+  "employeeDetail.noDimension": "No dimension",
+  "employeeDetail.notAvailable": "N/A",
+
+  "employeeDetail.employeeIdLabel": "EMPLOYEE ID",
+  "employeeDetail.locationLabel": "LOCATION",
+  "employeeDetail.emailLabel": "EMAIL ADDRESS",
+  "employeeDetail.phoneLabel": "PHONE",
+  "employeeDetail.joinDateLabel": "JOIN DATE",
+
+  "employeeDetail.totalProjectsTitle": "Total Projects",
+  "employeeDetail.totalProjectsActive": "+{{count}} active",
+
+  "employeeDetail.utilizationTitle": "Current Utilization",
+  "employeeDetail.utilizationWithinTarget": "Within target",
+  "employeeDetail.utilizationOverAllocated": "Over allocated",
+
+  "employeeDetail.tenureTitle": "Tenure",
+  "employeeDetail.tenureYears": "Years",
+
+  "employeeDetail.header.exportPdf": "Export PDF",
+  "employeeDetail.header.saveChanges": "Save Changes",
+
+  "employeeDetail.assignedProjectsTitle": "Assigned Projects",
+  "employeeDetail.searchProjectsPlaceholder": "Search projects...",
+  "employeeDetail.assignProjectButton": "Assign Project",
+
+  "employeeDetail.table.projectName": "PROJECT NAME",
+  "employeeDetail.table.role": "ROLE",
+  "employeeDetail.table.timeline": "TIMELINE",
+  "employeeDetail.table.involvement": "INVOLVEMENT",
+  "employeeDetail.table.status": "STATUS",
+  "employeeDetail.table.actions": "ACTIONS",
+
+  "employeeDetail.noProjects": "No projects assigned",
+  "employeeDetail.noProjectName": "No name",
+  "employeeDetail.noRole": "No role",
+  "employeeDetail.daysLeft": "{{count}} days left",
+
+  "employeeDetail.warning.overAllocation": "Warning: Total allocation exceeds 100% due to overlapping projects.",
+
+  "employeeDetail.pagination.previous": "Previous",
+  "employeeDetail.pagination.next": "Next",
+
+  "employeeDetail.button.viewProject": "View"
 }
