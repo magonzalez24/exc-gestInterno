@@ -41,7 +41,43 @@ export const empleadoController = {
 
       const result = await empleadoService.findPaginated(where, include, page, limit);
       res.json({
-        items: result.items.map(toEmpleadoPublic),
+        items: result.items.map((item: any) => {
+          const base = toEmpleadoPublic(item);
+          const asignaciones =
+            Array.isArray(item.asignacion_proyecto_empleado) &&
+            item.asignacion_proyecto_empleado.length > 0
+              ? item.asignacion_proyecto_empleado.map((a: any) => {
+                  const responsable = a.proyecto?.empleado;
+                  const responsableNombre =
+                    responsable && (responsable.nombre || responsable.apellido)
+                      ? `${responsable.nombre ?? ''} ${responsable.apellido ?? ''}`.trim()
+                      : '';
+
+                  return {
+                    id: a.id,
+                    codigo: a.codigo,
+                    proyecto_id: a.proyecto_id,
+                    proyecto_name: a.proyecto?.nombre ?? null,
+                    rol_proyecto_id: a.rol_proyecto_id,
+                    rol_proyecto_name:
+                      (a.rol_proyecto as any)?.nombre ??
+                      (a.rol_proyecto as any)?.descripcion ??
+                      null,
+                    fecha_inicio: a.fecha_inicio,
+                    fecha_final: a.fecha_final,
+                    activo: a.activo,
+                    porcentaje_asignacion: a.porcentaje_asignacion,
+                    responsable_id: a.proyecto?.responsable_id ?? null,
+                    responsable_name: responsableNombre,
+                  };
+                })
+              : [];
+
+          return {
+            ...base,
+            asignaciones,
+          };
+        }),
         total: result.total,
         page: result.page,
         limit: result.limit,

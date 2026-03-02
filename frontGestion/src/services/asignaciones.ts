@@ -29,3 +29,12 @@ export async function getFinalizaciones() {
   )
   return data
 }
+
+export async function updateAsignacionPorcentaje(
+  asignacionId: number,
+  porcentajeAsignacion: number,
+) {
+  await axiosInstance.put(`${API_ROUTES.ASIGNACIONES}/${asignacionId}`, {
+    porcentaje_asignacion: porcentajeAsignacion,
+  })
+}

@@ -11,7 +11,11 @@ import CustomSelect, { CatalogOption } from "@/components/CustomSelect"
 import { useI18n } from "@/i18n"
 import { useAppToast } from "@/hooks/useAppToast"
 import { LoadingScreen } from "@/components/loadingScreen"
-import { ProjectEmployeesDialog, AsignacionEmpleado } from "@/components/ProjectEmployeesDialog"
+import {
+  ProjectEmployeesDialog,
+  AsignacionEmpleado,
+  AjusteAsignacionExistente,
+} from "@/components/ProjectEmployeesDialog"
 import { createProyecto, getModelosProyecto } from "@/services/proyectosService"
 import { getPaises } from "@/services/pais"
 import { Empleado, getEmpleados } from "@/services/empleadosService"
@@ -74,6 +78,9 @@ const ProyectForm = () => {
   const [empleadosSeleccionadosIds, setEmpleadosSeleccionadosIds] = useState<number[]>([])
   const [assignDialogOpen, setAssignDialogOpen] = useState(false)
   const [searchEmpleado, setSearchEmpleado] = useState("")
+  const [ajustesAsignacionesExistentes, setAjustesAsignacionesExistentes] = useState<
+    AjusteAsignacionExistente[]
+  >([])
 
   const [values, setValues] = useState<ProyectoFormValues>({
     codigo: "",
@@ -224,10 +231,9 @@ const ProyectForm = () => {
           return {
             // Código de asignación: combinamos código de proyecto + índice para garantizar unicidad
             codigo: `ASIG-${parsed.codigo}-${index + 1}`,
-            fecha_inicio: new Date(asignacion.fecha_inicio).toISOString() || parsed.fecha_inicio,
-            fecha_final: asignacion.fecha_fin
-              ? new Date(asignacion.fecha_fin).toISOString()
-              : null,
+            // Enviamos las fechas tal como vienen del input (YYYY-MM-DD) para evitar desajustes por zona horaria
+            fecha_inicio: asignacion.fecha_inicio || parsed.fecha_inicio,
+            fecha_final: asignacion.fecha_fin || null,
             activo: true,
             porcentaje_asignacion: asignacion.porcentaje
               ? Number(asignacion.porcentaje)
@@ -247,8 +253,9 @@ const ProyectForm = () => {
         modelo_proyecto_id: Number(parsed.modelo_proyecto_id),
         descripcion: parsed.descripcion || null,
         tarifa: parsed.tarifa,
-        fecha_inicio: new Date(parsed.fecha_inicio).toISOString(),
-        fecha_final_prevista: new Date(parsed.fecha_final_prevista ?? "").toISOString() || null,
+          // Enviamos las fechas de proyecto como string de fecha (YYYY-MM-DD) sin convertir a ISO
+          fecha_inicio: parsed.fecha_inicio,
+          fecha_final_prevista: parsed.fecha_final_prevista || null,
         // Campos derivados / no presentes en el formulario
         fecha_final: null,
         pais_id: Number(parsed.pais_id),
@@ -258,6 +265,17 @@ const ProyectForm = () => {
         // NUEVO: asignaciones de empleados al proyecto
         asignaciones: asignacionesPayload,
       } as any)
+
+      // Aplicamos los ajustes de asignaciones existentes (otros proyectos del empleado)
+      // después de crear el nuevo proyecto
+      if (ajustesAsignacionesExistentes.length > 0) {
+        const { updateAsignacionPorcentaje } = await import("@/services/asignaciones")
+        await Promise.all(
+          ajustesAsignacionesExistentes.map((ajuste) =>
+            updateAsignacionPorcentaje(ajuste.asignacionId, ajuste.porcentaje),
+          ),
+        )
+      }
 
       showToast("success", t("projectForm.toastSuccess") ?? "Proyecto creado correctamente")
       navigate("/proyects")
@@ -524,6 +542,7 @@ const ProyectForm = () => {
             asignaciones={asignaciones}
             toggleEmpleadoSeleccion={toggleEmpleadoSeleccion}
             handleCambioAsignacion={handleCambioAsignacion}
+            onConfirm={setAjustesAsignacionesExistentes}
           />
 
           {/* Acciones */}
