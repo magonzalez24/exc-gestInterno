@@ -5,7 +5,7 @@ import type {
 } from '../generated/prisma/client';
 
 // Factores y constantes de coste (alineados con empleado.service)
-const COSTE_EMPRESA_FACTOR = 1.3;
+const COSTE_EMPRESA_FACTOR = 1;
 const ANNUAL_WORKING_HOURS = 1760; // mismas horas anuales que en empleado.service
 const DAILY_WORKING_HOURS = 8; // horas estándar por día para estimar la asignación
 
@@ -18,7 +18,6 @@ type CalculoCostoParams = {
 
 export function startOfDay(date: Date): Date {
   const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
   return d;
 }
 
@@ -272,7 +271,12 @@ export const asignacionProyectoEmpleadoService = {
       }
 
       const asignacion = await tx.asignacion_proyecto_empleado.create({
-        data: rawData,
+        data: {
+          ...rawData,
+          // Aseguramos que Prisma reciba Date, no el string "YYYY-MM-DD"
+          ...(fechaInicio ? { fecha_inicio: fechaInicio } : {}),
+          ...(fechaFinal !== null ? { fecha_final: fechaFinal } : {}),
+        },
       });
 
       if (empleadoId != null && fechaInicio && porcentajeAsignacion != null) {

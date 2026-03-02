@@ -17,7 +17,7 @@ const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100;
 
 // Factores de coste
-const COSTE_EMPRESA_FACTOR = 1.3; // 30% de sobrecoste sobre el SBA
+const COSTE_EMPRESA_FACTOR = 1; // 30% de sobrecoste sobre el SBA
 const ANNUAL_WORKING_HOURS = 1760; // 40h * 44 semanas aprox.
 
 export type EmpleadoPaginatedResult = {
@@ -47,10 +47,21 @@ export const empleadoService = {
     const safeLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)));
     const skip = (safePage - 1) * safeLimit;
 
+    // Siempre incluimos las asignaciones del empleado con su proyecto, además de lo que pida el caller
+    const finalInclude: Prisma.empleadoInclude = {
+      ...(include as Prisma.empleadoInclude | undefined),
+      asignacion_proyecto_empleado: {
+        include: {
+          proyecto: true,
+          rol_proyecto: true,
+        },
+      },
+    };
+
     const [items, total] = await Promise.all([
       prisma.empleado.findMany({
         where,
-        include,
+        include: finalInclude,
         orderBy: [{ apellido: 'asc' }, { nombre: 'asc' }],
         skip,
         take: safeLimit,
