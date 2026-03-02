@@ -153,6 +153,9 @@ export const proyectoService = {
               data: {
                 ...rawAsig,
                 proyecto_id: createdProyecto.id,
+                // Forzamos a Date para Prisma (evitamos pasar el string "YYYY-MM-DD" directamente)
+                ...(fechaInicio ? { fecha_inicio: fechaInicio } : {}),
+                ...(fechaFinal !== null ? { fecha_final: fechaFinal } : {}),
                 ...(costoAsignacionPeriodo > 0
                   ? { costo_asignacion: costoAsignacionPeriodo }
                   : {}),

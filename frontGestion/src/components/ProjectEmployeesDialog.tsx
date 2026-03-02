@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -16,6 +16,11 @@ import { getRolesProyecto } from "@/services/proyectosService"
 import { Trash2 } from "lucide-react"
 
 type TFunction = (key: string, options?: Record<string, unknown>) => string | undefined
+
+export type AjusteAsignacionExistente = {
+  asignacionId: number
+  porcentaje: number
+}
 
 export type AsignacionEmpleado = {
   empleado: Empleado
@@ -40,6 +45,7 @@ type Props = {
     campo: keyof Omit<AsignacionEmpleado, "empleado">,
     valor: string,
   ) => void
+  onConfirm: (ajustes: AjusteAsignacionExistente[]) => void
 }
 
 export const ProjectEmployeesDialog = ({
@@ -53,8 +59,14 @@ export const ProjectEmployeesDialog = ({
   asignaciones,
   toggleEmpleadoSeleccion,
   handleCambioAsignacion,
+  onConfirm,
 }: Props) => {
   const [rolesOptions, setRolesOptions] = useState<CatalogOption[]>([])
+  // porcentaje ajustado para asignaciones existentes por empleado
+  // estructura: { [empleadoId]: { [asignacionId]: porcentajeNuevo } }
+  const [porcentajesExistentes, setPorcentajesExistentes] = useState<
+    Record<number, Record<number, string>>
+  >({})
 
   useEffect(() => {
     let cancelled = false
@@ -85,6 +97,75 @@ export const ProjectEmployeesDialog = ({
       cancelled = true
     }
   }, [])
+
+  const handleCambioPorcentajeExistente = (
+    empleadoId: number,
+    asignacionId: number,
+    valor: string,
+  ) => {
+    setPorcentajesExistentes((prev) => ({
+      ...prev,
+      [empleadoId]: {
+        ...(prev[empleadoId] ?? {}),
+        [asignacionId]: valor,
+      },
+    }))
+  }
+
+  const isEmpleadoConAsignacionCompleta = (empleado: Empleado, asignacion: AsignacionEmpleado) => {
+    const actuales = empleado.asignaciones || []
+
+    // Suma de porcentajes de proyectos EXISTENTES (otros proyectos) usando overrides si los hay
+    const sumaExistentes = actuales.reduce((sum, a) => {
+      if (!a.activo) return sum
+      const overridesEmpleado = porcentajesExistentes[empleado.id] ?? {}
+      const override = overridesEmpleado[a.id]
+      const valor = override != null && override !== "" ? Number(override) : Number(a.porcentaje_asignacion || 0)
+      return sum + (Number.isNaN(valor) ? 0 : valor)
+    }, 0)
+
+    const porcentajeNuevo = Number(asignacion.porcentaje || 0)
+    const total = sumaExistentes + (Number.isNaN(porcentajeNuevo) ? 0 : porcentajeNuevo)
+
+    return total === 100
+  }
+
+  const allValid = useMemo(() => {
+    if (empleadosSeleccionadosIds.length === 0) return false
+    return empleadosSeleccionadosIds.every((id) => {
+      const asignacion = asignaciones[id]
+      if (!asignacion) return false
+      return isEmpleadoConAsignacionCompleta(asignacion.empleado, asignacion)
+    })
+  }, [empleadosSeleccionadosIds, asignaciones, porcentajesExistentes])
+
+  const buildAjustes = (): AjusteAsignacionExistente[] => {
+    const ajustes: AjusteAsignacionExistente[] = []
+
+    empleadosSeleccionadosIds.forEach((id) => {
+      const asignacion = asignaciones[id]
+      if (!asignacion) return
+      const empleado = asignacion.empleado
+      const actuales = empleado.asignaciones || []
+      const overridesEmpleado = porcentajesExistentes[empleado.id] ?? {}
+
+      actuales.forEach((a) => {
+        const override = overridesEmpleado[a.id]
+        const original = Number(a.porcentaje_asignacion || 0)
+        const nuevo =
+          override != null && override !== "" ? Number(override) : original
+
+        if (!Number.isNaN(nuevo) && nuevo !== original) {
+          ajustes.push({
+            asignacionId: a.id,
+            porcentaje: nuevo,
+          })
+        }
+      })
+    })
+
+    return ajustes
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -185,6 +266,7 @@ export const ProjectEmployeesDialog = ({
                     const asignacion = asignaciones[id]
                     if (!asignacion) return null
                     const { empleado } = asignacion
+                    const asignacionesExistentes = empleado.asignaciones || []
 
                     return (
                       <div
@@ -255,6 +337,49 @@ export const ProjectEmployeesDialog = ({
                             className="h-8 text-[11px]"
                           />
                         </div>
+
+                        {asignacionesExistentes.length > 0 && (
+                          <div className="mt-2 space-y-2 rounded-md border border-slate-200 bg-white/70 p-2">
+                            <p className="text-[11px] font-medium text-slate-700">
+                              {t("projectForm.assignDialogExistingAssignmentsTitle") ??
+                                "Asignaciones actuales del empleado"}
+                            </p>
+                            <div className="grid gap-2 md:grid-cols-2">
+                              {asignacionesExistentes.map((a) => {
+                                const overridesEmpleado = porcentajesExistentes[empleado.id] ?? {}
+                                const value =
+                                  overridesEmpleado[a.id] ??
+                                  (a.porcentaje_asignacion != null
+                                    ? String(a.porcentaje_asignacion)
+                                    : "")
+
+                                return (
+                                  <div key={a.id} className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-medium text-slate-800">
+                                      {a.proyecto_name ?? `Proyecto ${a.proyecto_id}`}
+                                    </span>
+                                    <CustomInput
+                                      id={`existing-assignment-${empleado.id}-${a.id}`}
+                                      label={t("projectForm.assignDialogFieldPercent") ?? "% dedicación"}
+                                      type="number"
+                                      min={0}
+                                      max={100}
+                                      value={value}
+                                      onChange={(e) =>
+                                        handleCambioPorcentajeExistente(
+                                          empleado.id,
+                                          a.id,
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="h-8 text-[11px]"
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -274,7 +399,13 @@ export const ProjectEmployeesDialog = ({
                 type="button"
                 size="sm"
                 className="bg-blue-600 text-white hover:bg-blue-600/90"
-                onClick={() => onOpenChange(false)}
+                disabled={!allValid}
+                onClick={() => {
+                  if (!allValid) return
+                  const ajustes = buildAjustes()
+                  onConfirm(ajustes)
+                  onOpenChange(false)
+                }}
               >
                 {t("projectForm.assignDialogConfirm") ?? "Confirmar asignación"}
               </Button>
