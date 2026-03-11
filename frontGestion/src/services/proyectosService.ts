@@ -14,6 +14,7 @@ export type ProyectoAsignacion = {
   fecha_final: string | null
   activo: boolean
   porcentaje_asignacion: string
+  costo_asignacion?: number
 }
 
 export type Proyecto = {
@@ -69,6 +70,11 @@ export async function deleteProyecto(id: number) {
 
 export async function updateProyecto(proyecto: Proyecto) {
   const { data } = await axiosInstance.put<Proyecto>(`${API_ROUTES.PROYECTOS}/${proyecto.id}`, proyecto)
+  return data
+}
+
+export async function getAsignacionesProyecto(proyectoId: number) {
+  const { data } = await axiosInstance.get<ProyectoAsignacion[]>(`${API_ROUTES.PROYECTOS}/${proyectoId}/asignaciones`)
   return data
 }
 
