@@ -6,11 +6,12 @@ import { LoadingScreen } from "@/components/loadingScreen"
 import ProjectGeneralInfoCard from "@/components/proyectsDetails/ProjectGeneralInfoCard"
 import ProyectOverviewCard from "@/components/proyectsDetails/ProyectOverviewCard"
 import { ProjectTeamCard, TeamMemberAssignment } from "@/components/proyectsDetails/ProjectTeamCard"
-import ProjectExpensesCard from "@/components/proyectsDetails/ProjectExpensesCard"
 import { ProjectEmployeesDialog, AsignacionEmpleado } from "@/components/ProjectEmployeesDialog"
 import { getProyectoById, type Proyecto } from "@/services/proyectosService"
 import { Empleado, getEmpleados } from "@/services/empleadosService"
 import { useI18n } from "@/i18n"
+import ProjectEmployeesExpensesCard from "@/components/proyectsDetails/ProjectEmployeesExpensesCard"
+import ProjectGastosCard from "@/components/proyectsDetails/ProjectGastosCard"
 
 const ProyectDetail = () => {
   const [proyecto, setProyecto] = useState<Proyecto | null>(null)
@@ -234,7 +235,12 @@ const ProyectDetail = () => {
       )}
 
       {activeTab === "gastos" && proyecto && (
-        <ProjectExpensesCard proyectoId={proyecto.id} t={t} />
+        <>
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ProjectEmployeesExpensesCard proyectoId={proyecto.id} t={t} />
+            <ProjectGastosCard proyectoId={proyecto.id} t={t} />
+          </div>
+        </>
       )}
     </div>
   )

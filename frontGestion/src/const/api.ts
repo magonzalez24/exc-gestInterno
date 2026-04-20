@@ -14,6 +14,7 @@ export const API_ROUTES = {
   AUTH_LOGOUT: `/auth/logout`,
   AUTH_ME: `/auth/me`,
   PROYECTOS: `/proyectos`,
+  GASTOS_PROYECTO: `/gastos-proyecto`,
   EMPLEADOS: `/empleados`,      
   DIMENSIONES: `/dimensiones`,
   PERFILES: `/perfiles`,

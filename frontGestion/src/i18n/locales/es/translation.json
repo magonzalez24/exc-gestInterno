@@ -185,5 +185,31 @@
   "employeeDetail.pagination.previous": "Anterior",
   "employeeDetail.pagination.next": "Siguiente",
 
-  "employeeDetail.button.viewProject": "Ver"
+  "employeeDetail.button.viewProject": "Ver",
+
+  "common.loading": "Cargando...",
+  "employees.employee": "Empleado",
+
+  "projects.detail.tabs.detail": "Detalle",
+  "projects.detail.tabs.expenses": "Gastos",
+  "projects.detail.expensesTitle": "Gastos del proyecto",
+  "projects.detail.noExpenses": "No hay gastos registrados para este proyecto.",
+  "projects.detail.assignmentCost": "Costo asignación",
+  "projects.detail.totalAssignmentCost": "Total",
+
+  "projects.detail.projectExpensesTitle": "Gastos del proyecto",
+  "projects.detail.noProjectExpenses": "No hay gastos registrados para este proyecto.",
+  "projects.detail.expenseDescription": "Descripción",
+  "projects.detail.expenseDate": "Fecha",
+  "projects.detail.expenseAmount": "Importe",
+  "projects.detail.totalProjectExpenses": "Total",
+
+  "projects.detail.addProjectExpense": "Nuevo gasto",
+  "projects.detail.newProjectExpenseTitle": "Crear gasto",
+  "projects.detail.newProjectExpenseDescription": "Añade un nuevo gasto al proyecto.",
+  "projects.detail.expenseDescriptionPlaceholder": "Ej: gasto viaje",
+  "projects.detail.expenseAmountPlaceholder": "1200",
+  "projects.detail.cancel": "Cancelar",
+  "projects.detail.save": "Guardar",
+  "projects.detail.saving": "Guardando..."
 }

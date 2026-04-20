@@ -89,12 +89,12 @@ export const Sidebar = () => {
                 'flex items-left justify-start cursor-pointer gap-3 rounded-lg w-full py-3 text-sm font-medium transition-colors hover:bg-blue-900 hover:text-white',
                 isActive
                   ? 'bg-blue-300 text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                  : 'text-muted-foreground hover:bg-blue-900 hover:text-white',
                 isCollapsed && 'justify-center'
               )}
               title={isCollapsed ? t(item.title) : undefined}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
+              <Icon className="h-5 w-5 shrink-0" />
               {!isCollapsed && <span>{t(item.title)}</span>}
             </Button>
           );
