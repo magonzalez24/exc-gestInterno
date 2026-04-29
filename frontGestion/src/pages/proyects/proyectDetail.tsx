@@ -10,12 +10,15 @@ import { ProjectEmployeesDialog, AsignacionEmpleado } from "@/components/Project
 import { getProyectoById, type Proyecto } from "@/services/proyectosService"
 import { Empleado, getEmpleados } from "@/services/empleadosService"
 import { useI18n } from "@/i18n"
+import ProjectEmployeesExpensesCard from "@/components/proyectsDetails/ProjectEmployeesExpensesCard"
+import ProjectGastosCard from "@/components/proyectsDetails/ProjectGastosCard"
 
 const ProyectDetail = () => {
   const [proyecto, setProyecto] = useState<Proyecto | null>(null)
   const { id } = useParams<{ id: string }>()
   const [loading, setLoading] = useState(true)
   const { t } = useI18n()
+  const [activeTab, setActiveTab] = useState<"detalle" | "gastos">("detalle")
   const [empleados, setEmpleados] = useState<Empleado[]>([])
   const [asignaciones, setAsignaciones] = useState<Record<number, AsignacionEmpleado>>({})
   const [empleadosSeleccionadosIds, setEmpleadosSeleccionadosIds] = useState<number[]>([])
@@ -23,38 +26,28 @@ const ProyectDetail = () => {
   const [searchEmpleado, setSearchEmpleado] = useState("")
 
   useEffect(() => {
-    if (id) {
-      setLoading(true)
-      const loadProyecto = async () => {
-        try {
-          setLoading(true)
-          const data = await getProyectoById(Number(id))
-          setProyecto(data)
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error(error)
-        } finally {
-          setLoading(false)
-        }
+    if (!id) return
+
+    const loadProyecto = async () => {
+      try {
+        setLoading(true)
+        const data = await getProyectoById(Number(id))
+        setProyecto(data)
+      } finally {
+        setLoading(false)
       }
-      loadProyecto()
     }
+
+    void loadProyecto()
   }, [id])
 
   useEffect(() => {
     let cancelled = false
 
     const loadEmpleados = async () => {
-      try {
-        const empleadosPage = await getEmpleados({ page: 1, limit: 999 })
-        if (cancelled) return
-        setEmpleados(empleadosPage.items)
-      } catch (error) {
-        if (!cancelled) {
-          // eslint-disable-next-line no-console
-          console.error("Error al cargar empleados", error)
-        }
-      }
+      const empleadosPage = await getEmpleados({ page: 1, limit: 999 })
+      if (cancelled) return
+      setEmpleados(empleadosPage.items)
     }
 
     void loadEmpleados()
@@ -105,8 +98,9 @@ const ProyectDetail = () => {
       if (alreadySelected) {
         const next = prev.filter((selectedId) => selectedId !== empleado.id)
         setAsignaciones((asignacionesPrevias) => {
-          const { [empleado.id]: _, ...rest } = asignacionesPrevias
-          return rest
+          const asignacionesActualizadas = { ...asignacionesPrevias }
+          delete asignacionesActualizadas[empleado.id]
+          return asignacionesActualizadas
         })
         return next
       }
@@ -151,24 +145,46 @@ const ProyectDetail = () => {
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-slate-50 px-6 py-8">
+    <div className="min-h-screen bg-slate-50 px-6 py-8">
+      <div className="flex items-center justify-between gap-4">
         <PageBreadcrumb
           backHref="/proyects"
           backLabel="Proyectos"
           title={proyecto?.nombre ?? "Proyecto"}
         />
-
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {proyecto && (
-            <>
-              <ProjectGeneralInfoCard proyecto={proyecto} />
-              <ProyectOverviewCard proyecto={proyecto} />
-            </>
-          )}
+        <div className="inline-flex items-center gap-px rounded-lg border bg-white p-1 shadow-sm">
+          <button
+            type="button"
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              activeTab === "detalle"
+                ? "bg-slate-900 text-white shadow"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+            onClick={() => setActiveTab("detalle")}
+          >
+            {t("projects.detail.tabs.detail") ?? "Detalle"}
+          </button>
+          <button
+            type="button"
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              activeTab === "gastos"
+                ? "bg-slate-900 text-white shadow"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+            onClick={() => setActiveTab("gastos")}
+          >
+            {t("projects.detail.tabs.expenses") ?? "Gastos"}
+          </button>
         </div>
+      </div>
 
-        {empleadosSeleccionadosIds.length > 0 && (
+      {activeTab === "detalle" && proyecto && (
+        <>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ProjectGeneralInfoCard proyecto={proyecto} />
+            <ProyectOverviewCard proyecto={proyecto} />
+          </div>
+
           <div className="mt-6">
             <ProjectTeamCard
               t={t}
@@ -199,22 +215,34 @@ const ProyectDetail = () => {
               assignButtonDisabled={empleados.length === 0}
             />
           </div>
-        )}
 
-        <ProjectEmployeesDialog
-          open={assignDialogOpen}
-          onOpenChange={setAssignDialogOpen}
-          t={t}
-          empleadosFiltrados={empleadosFiltrados}
-          empleadosSeleccionadosIds={empleadosSeleccionadosIds}
-          searchEmpleado={searchEmpleado}
-          onSearchEmpleadoChange={setSearchEmpleado}
-          asignaciones={asignaciones}
-          toggleEmpleadoSeleccion={toggleEmpleadoSeleccion}
-          handleCambioAsignacion={handleCambioAsignacion}
-        />
-      </div>
-    </>
+          <ProjectEmployeesDialog
+            open={assignDialogOpen}
+            onOpenChange={setAssignDialogOpen}
+            t={t}
+            empleadosFiltrados={empleadosFiltrados}
+            empleadosSeleccionadosIds={empleadosSeleccionadosIds}
+            searchEmpleado={searchEmpleado}
+            onSearchEmpleadoChange={setSearchEmpleado}
+            asignaciones={asignaciones}
+            toggleEmpleadoSeleccion={toggleEmpleadoSeleccion}
+            handleCambioAsignacion={handleCambioAsignacion}
+            onConfirm={() => {
+              console.log("onConfirm")
+            }}
+          />
+        </>
+      )}
+
+      {activeTab === "gastos" && proyecto && (
+        <>
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ProjectEmployeesExpensesCard proyectoId={proyecto.id} t={t} />
+            <ProjectGastosCard proyectoId={proyecto.id} t={t} />
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 

@@ -60,7 +60,27 @@ export const asignacionProyectoEmpleadoController = {
         return res.status(400).json({ error: 'ID de proyecto inválido' });
       }
       const items = await asignacionProyectoEmpleadoService.findByProyecto(proyecto_id);
-      res.json(items);
+
+      const response = items.map((a: any) => ({
+        id: a.id,
+        codigo: a.codigo,
+        proyecto_id: a.proyecto_id,
+        empleado_id: a.empleado_id,
+        rol_proyecto_id: a.rol_proyecto_id,
+        fecha_inicio: a.fecha_inicio,
+        fecha_final: a.fecha_final,
+        activo: a.activo,
+        porcentaje_asignacion: a.porcentaje_asignacion,
+        costo_asignacion:
+          a.costo_asignacion != null ? String(a.costo_asignacion) : null,
+
+        id_empleado: a.empleado?.id ?? a.empleado_id,
+        codigo_empleado: a.empleado?.codigo_empleado ?? null,
+        nombre_empleado: a.empleado?.nombre ?? null,
+        apellido_empleado: a.empleado?.apellido ?? null,
+      }));
+
+      res.json(response);
     } catch (error) {
       console.error('Error en asignacionProyectoEmpleadoController.getByProyecto:', error);
       res.status(500).json({ error: 'Error al obtener asignaciones del proyecto' });

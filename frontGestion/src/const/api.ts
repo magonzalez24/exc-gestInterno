@@ -1,4 +1,4 @@
-import { RollerCoaster } from "lucide-react";
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
@@ -14,6 +14,7 @@ export const API_ROUTES = {
   AUTH_LOGOUT: `/auth/logout`,
   AUTH_ME: `/auth/me`,
   PROYECTOS: `/proyectos`,
+  GASTOS_PROYECTO: `/gastos-proyecto`,
   EMPLEADOS: `/empleados`,      
   DIMENSIONES: `/dimensiones`,
   PERFILES: `/perfiles`,

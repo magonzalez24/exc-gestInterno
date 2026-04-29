@@ -64,3 +64,6 @@ desktop.ini
 
 # Archivos locales
 *.local
+
+# Rules
+*.mdc

@@ -14,6 +14,7 @@ export type ProyectoAsignacion = {
   fecha_final: string | null
   activo: boolean
   porcentaje_asignacion: string
+  costo_asignacion?: number
 }
 
 export type Proyecto = {
@@ -41,6 +42,14 @@ export type ProyectoListResponse = {
   limit: number;
   totalPages: number;
 };
+
+export type ProyectoGasto = {
+  id: number
+  proyecto_id: number
+  descripcion: string
+  importe: string
+  fecha_gasto: string
+}
 
 export async function getProyectos(params?: { page?: number; limit?: number }) {
   const { page, limit } = params ?? {}
@@ -72,6 +81,11 @@ export async function updateProyecto(proyecto: Proyecto) {
   return data
 }
 
+export async function getAsignacionesProyecto(proyectoId: number) {
+  const { data } = await axiosInstance.get<ProyectoAsignacion[]>(`${API_ROUTES.PROYECTOS}/${proyectoId}/asignaciones`)
+  return data
+}
+
 export async function getModelosProyecto() {
   const { data } = await axiosInstance.get<MasterType[]>(API_ROUTES.MODELO_PROYECTO)
   return data
@@ -79,5 +93,17 @@ export async function getModelosProyecto() {
 
 export async function getRolesProyecto() {
   const { data } = await axiosInstance.get<MasterType[]>(API_ROUTES.ROL_PROYECTO)
+  return data
+}
+
+export async function getGastosProyecto(proyectoId: number) {
+  const { data } = await axiosInstance.get<ProyectoGasto[]>(`${API_ROUTES.PROYECTOS}/${proyectoId}/gastos`)
+  return data
+}
+
+export type CreateProyectoGastoInput = Omit<ProyectoGasto, "id">
+
+export async function createGastoProyecto(gasto: CreateProyectoGastoInput) {
+  const { data } = await axiosInstance.post<ProyectoGasto>(`${API_ROUTES.GASTOS_PROYECTO}`, gasto)
   return data
 }

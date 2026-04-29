@@ -183,5 +183,31 @@
   "employeeDetail.pagination.previous": "Previous",
   "employeeDetail.pagination.next": "Next",
 
-  "employeeDetail.button.viewProject": "View"
+  "employeeDetail.button.viewProject": "View",
+
+  "common.loading": "Loading...",
+  "employees.employee": "Employee",
+
+  "projects.detail.tabs.detail": "Details",
+  "projects.detail.tabs.expenses": "Expenses",
+  "projects.detail.expensesTitle": "Project expenses",
+  "projects.detail.noExpenses": "There are no expenses registered for this project.",
+  "projects.detail.assignmentCost": "Assignment cost",
+  "projects.detail.totalAssignmentCost": "Total",
+
+  "projects.detail.projectExpensesTitle": "Project expenses",
+  "projects.detail.noProjectExpenses": "There are no expenses registered for this project.",
+  "projects.detail.expenseDescription": "Description",
+  "projects.detail.expenseDate": "Date",
+  "projects.detail.expenseAmount": "Amount",
+  "projects.detail.totalProjectExpenses": "Total",
+
+  "projects.detail.addProjectExpense": "New expense",
+  "projects.detail.newProjectExpenseTitle": "Create expense",
+  "projects.detail.newProjectExpenseDescription": "Add a new expense to the project.",
+  "projects.detail.expenseDescriptionPlaceholder": "e.g. travel expense",
+  "projects.detail.expenseAmountPlaceholder": "1200",
+  "projects.detail.cancel": "Cancel",
+  "projects.detail.save": "Save",
+  "projects.detail.saving": "Saving..."
 }
